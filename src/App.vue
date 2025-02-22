@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import EditorPage from './EditorPage.vue';
 
-const greetMsg = ref("");
-const name = ref("");
-
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { name: name.value });
-}
 </script>
 
 <template>
-  <main class="">
-    <div @click="greet" class="">allo</div>
-    {{ greetMsg }}
+  <main class="h-12/12">
+    <editor-page />
   </main>
 </template>
 
@@ -22,6 +13,7 @@ async function greet() {
 @import "tailwindcss";
 
 body {
+  font-family: Poppins, sans-serif;
   @apply bg-slate-700 text-gray-200;
 }
 </style>

@@ -10,6 +10,8 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@fontsource/poppins": "^5.1.1",
+    "@guolao/vue-monaco-editor": "^1.5.4",
     "@tailwindcss/vite": "^4.0.8",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
