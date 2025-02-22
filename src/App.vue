@@ -20,4 +20,8 @@ async function greet() {
 
 <style>
 @import "tailwindcss";
+
+body {
+  @apply bg-slate-700 text-gray-200;
+}
 </style>
