@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   text: string,
   disabled: boolean,
 }>()
@@ -7,11 +7,16 @@ defineProps<{
 const emit = defineEmits<{
   click: [],
 }>()
+
+const handleClick = () => {
+  if (props.disabled) return;
+  emit('click');
+}
 </script>
 
 <template>
   <button
-      @click="() => emit('click')"
+      @click="handleClick"
       class="py-2 px-4 rounded-xl transition duration-100"
       :class="{
         'cursor-not-allowed': disabled,
