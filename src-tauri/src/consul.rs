@@ -76,7 +76,7 @@ fn generate_key_values(json: &Map<String, Value>) -> Result<HashMap<String, Stri
                 None => return Err(format!("Value for key {} is not a string", key)),
             };
         }
-    } 
+    }
 
     Ok(result)
 }
@@ -151,8 +151,9 @@ pub async fn update_consul(
         kv::delete(client, &key).await?;
     }
 
-    for key in keys_to_add.iter().chain(&keys_to_update) { let value = new_values.key_values.get(key).unwrap();
-       kv::set(client, &key, &value).await?;
+    for key in keys_to_add.iter().chain(&keys_to_update) {
+        let value = new_values.key_values.get(key).unwrap();
+        kv::set(client, &key, &value).await?;
     }
 
     Ok(())
@@ -180,14 +181,16 @@ pub struct ConsulValues {
 }
 
 impl ConsulValues {
-    pub async fn new_from_client(client: &client::ConsulClient) -> ConsulValues {
-        let keys = kv::list_all_keys(client).await.unwrap();
+    pub async fn new_from_client(
+        client: &client::ConsulClient,
+    ) -> Result<ConsulValues, Box<dyn std::error::Error>> {
+        let keys = kv::list_all_keys(client).await?;
         let mut key_values: HashMap<String, String> = HashMap::new();
 
         let mut internal_values: Map<String, Value> = Map::new();
 
         for key in keys {
-            let value = kv::read(client, &key).await.unwrap();
+            let value = kv::read(client, &key).await?;
 
             if value.is_none() {
                 continue;
@@ -202,10 +205,10 @@ impl ConsulValues {
             key_values.insert(key, value);
         }
 
-        ConsulValues {
+        Ok(ConsulValues {
             internal_values,
             key_values,
-        }
+        })
     }
 
     pub fn new_from_json(values: Map<String, Value>) -> Result<ConsulValues, String> {

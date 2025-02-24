@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const props = defineProps<{
-  text: string,
   disabled: boolean,
 }>()
 
@@ -25,7 +24,7 @@ const handleClick = () => {
         'brightness-70': disabled,
       }"
   >
-    {{ text }}
+    <slot />
   </button>
 </template>
 

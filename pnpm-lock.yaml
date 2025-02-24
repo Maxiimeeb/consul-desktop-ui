@@ -14,6 +14,9 @@ importers:
       '@guolao/vue-monaco-editor':
         specifier: ^1.5.4
         version: 1.5.4(monaco-editor@0.52.2)(vue@3.5.13(typescript@5.6.3))
+      '@kalimahapps/vue-icons':
+        specifier: ^1.7.1
+        version: 1.7.1(vue@3.5.13(typescript@5.6.3))
       '@tailwindcss/vite':
         specifier: ^4.0.8
         version: 4.0.8(vite@6.1.1(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.7.0))
@@ -239,6 +242,12 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
+
+  '@kalimahapps/vue-icons@1.7.1':
+    resolution: {integrity: sha512-PXMiVTPOZ0LTU8DuIIcuOc1FyC9I9e2SMz9XUzByZZEPN8ruDCdNw2fyVCH8rcNpVSrlMlfqDT7di7tPZgH8XA==}
+    engines: {node: '>=14.16'}
+    peerDependencies:
+      vue: ^3.0.0
 
   '@monaco-editor/loader@1.5.0':
     resolution: {integrity: sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==}
@@ -702,6 +711,9 @@ packages:
   state-local@1.0.7:
     resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
 
+  svg-parser@2.0.4:
+    resolution: {integrity: sha512-e4hG1hRwoOdRb37cIMSgzNsxyzKfayW6VOflrwvR+/bzrkyxY/31WkbgnQpgtrNp1SdpJvpUAGTa/ZoiPNDuRQ==}
+
   tailwindcss@4.0.8:
     resolution: {integrity: sha512-Me7N5CKR+D2A1xdWA5t5+kjjT7bwnxZOE6/yDI/ixJdJokszsn2n++mdU5yJwrsTpqFX2B9ZNMBJDwcqk9C9lw==}
 
@@ -899,6 +911,11 @@ snapshots:
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.6.3))
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
+
+  '@kalimahapps/vue-icons@1.7.1(vue@3.5.13(typescript@5.6.3))':
+    dependencies:
+      svg-parser: 2.0.4
+      vue: 3.5.13(typescript@5.6.3)
 
   '@monaco-editor/loader@1.5.0':
     dependencies:
@@ -1319,6 +1336,8 @@ snapshots:
   source-map-js@1.2.1: {}
 
   state-local@1.0.7: {}
+
+  svg-parser@2.0.4: {}
 
   tailwindcss@4.0.8: {}
 

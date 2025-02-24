@@ -28,6 +28,7 @@ impl Port {
 
 #[derive(Serialize, Deserialize)]
 pub struct ConsulClient {
+    pub name: String,
     pub host: Host,
     pub port: Port,
     pub scheme: Scheme,
