@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import VButton from '../components/VButton.vue';
 import VRoundedButton from '../components/v-round-button.vue';
 import "@fontsource/poppins"; // Defaults to weight 400
 import {VueMonacoDiffEditor, VueMonacoEditor} from '@guolao/vue-monaco-editor'

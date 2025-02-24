@@ -8,7 +8,7 @@ struct ReadResponse {
     #[serde(rename = "Key")]
     key: String,
     #[serde(rename = "Value")]
-    value: String,
+    value: Option<String>,
 }
 
 static HTTP_CLIENT: LazyLock<reqwest::Client> = LazyLock::new(reqwest::Client::new);
@@ -30,9 +30,25 @@ pub async fn read(client: &ConsulClient, key: &str) -> Result<Option<String>, Bo
         );
     }
 
-    let json_response: Vec<ReadResponse> = response.json().await?;
+    let json_result: Result<Vec<ReadResponse>, _> = response.json().await;
 
-    let decoded_value = BASE64_STANDARD.decode(&json_response[0].value)?;
+    match json_result {
+        Err(e) => {
+            println!("Failed to parse JSON response url: {}", format!("{}/v1/kv/{}", client.address(), key));
+            return Err(e.into());
+        }
+        Ok(_) => {}
+    }
+
+    let json_response = json_result?;
+
+    let value = match &json_response[0].value {
+        Some(v) => v,
+        None => &String::new(),
+    };
+
+
+    let decoded_value = BASE64_STANDARD.decode(value)?;
 
     Ok(Some(String::from_utf8(decoded_value)?))
 }
@@ -51,7 +67,11 @@ pub async fn list_all_keys(client: &ConsulClient) -> Result<Vec<String>, Box<dyn
 
     let keys: Vec<String> = response.json().await?;
 
-    Ok(keys)
+    let filtered_keys = keys.into_iter()
+    .filter(|s| !s.ends_with('/'))
+    .collect();
+
+    Ok(filtered_keys)
 }
 
 pub async fn delete(client: &ConsulClient, key: &str) -> Result<(), Box<dyn std::error::Error>> {
