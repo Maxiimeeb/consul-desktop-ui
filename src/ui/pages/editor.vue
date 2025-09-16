@@ -8,7 +8,7 @@ import yaml from 'yaml';
 import {ConsulClient, TauriBride} from "../../core/tauri-bride.ts";
 import {toast} from "vue3-toastify";
 import {ChangePageFn} from "./use-page-manager.ts";
-import {AnOutlinedDisconnect, GlCancel, AnFilledSave, CaCompare, CoFilter} from '@kalimahapps/vue-icons';
+import {AnOutlinedDisconnect, GlCancel, AnFilledSave, CaCompare, CoFilter, FlFilledArrowSwap} from '@kalimahapps/vue-icons';
 
 enum EditorMode {
   Edit,
@@ -193,6 +193,17 @@ onMounted(async () => {
   <div class="absolute top-5 right-35 z-10 flex gap-3">
     <v-rounded-button class="bg-teal-700  font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="handleFilter">
       <co-filter />
+    </v-rounded-button>
+    <v-rounded-button class="bg-cyan-700  font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="() => {
+      handleCancel();
+      changePage({
+        name: 'smart-ui',
+        props: {
+          consulClient: props.consulClient,
+        },
+      })
+    }">
+      <fl-filled-arrow-swap />
     </v-rounded-button>
   </div>
   <div v-if="showSections" class="absolute top-5 left-5 z-10 flex flex-wrap gap-3 text-white font-poppins w-3/4 overflow-hidden p-1">

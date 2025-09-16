@@ -13,11 +13,18 @@ export type EditorPageInfo = {
     },
 }
 
-export type PageInfo = ServerListPageInfo | EditorPageInfo;
+export type SmartUIPageInfo = {
+    name: 'smart-ui',
+    props: {
+        consulClient: ConsulClient,
+    },
+}
+
+export type PageInfo = ServerListPageInfo | EditorPageInfo | SmartUIPageInfo;
 export type ChangePageFn = (newPageInfo: PageInfo) => void;
 
 export function usePageManager() {
-    const pageInfo = ref<EditorPageInfo | ServerListPageInfo>({
+    const pageInfo = ref<PageInfo>({
         name: 'server-list',
         props: {},
     });
