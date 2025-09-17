@@ -16,7 +16,7 @@ const serverList = ref<(ConsulClient)[]>([]);
 
 const handleConnect = (server: ConsulClient) => {
   props.changePage({
-    name: 'editor',
+    name: 'smart-ui',
     props: {
       consulClient: server,
     }

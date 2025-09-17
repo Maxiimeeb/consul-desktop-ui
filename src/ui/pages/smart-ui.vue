@@ -4,7 +4,6 @@ import VButton from '../components/VButton.vue';
 import VConsulEntry from '../components/v-consul-entry.vue';
 import "@fontsource/poppins"; // Defaults to weight 400
 import {onMounted, ref} from "vue";
-import yaml from 'yaml';
 import {ConsulClient, TauriBride} from "../../core/tauri-bride.ts";
 import {toast} from "vue3-toastify";
 import {ChangePageFn} from "./use-page-manager.ts";
@@ -19,14 +18,15 @@ const props = defineProps<{
 
 const bridge = new TauriBride();
 
+const showSections = ref<boolean>(false);
 const sections = ref<string[]>([]);
 const filteredSection = ref<string | null>(null);
+const textFilter = ref<string>('');
 
 const initialParsedYaml = ref<any>({});
 const currentParsedYaml = ref<any>({});
 
 const currentValues = ref<ConsulEntry[]>([]);
-const showSections = ref<boolean>(false);
 
 const flattenObject = (obj: object, prefix = "") => {
   const result: ConsulEntry[] = [];
@@ -52,6 +52,53 @@ const handleDisconnect = () => {
     name: 'server-list',
     props: {},
   });
+}
+
+/**
+ * Handle the change of a value
+ */
+const handleValueChange = async (key: string, newValue: string) => {
+  // We need to update the currentParsedYaml object with the new value
+  const keys = key.split('/');
+
+  let topLevelObj = currentParsedYaml.value;
+  let obj = topLevelObj;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (!obj[keys[i]]) {
+      obj[keys[i]] = {};
+    }
+    obj = obj[keys[i]];
+  }
+
+  obj[keys[keys.length - 1]] = newValue;
+
+  
+  // Save on backend
+  const result = await toast.promise(bridge.saveConsulValues(
+      props.consulClient,
+      initialParsedYaml.value,
+      topLevelObj,
+  ), {
+    pending: 'Saving values...',
+    success: 'Values saved',
+    error: {
+      render(err) {
+        return `Failed to save values: ${err.data}`;
+      }
+    },
+  },
+  {
+    autoClose: 500,
+  });
+  initialParsedYaml.value = structuredClone(result);
+  currentParsedYaml.value = structuredClone(result);
+
+  // We also need to update the currentValues array
+  const index = currentValues.value.findIndex(([k, _]) => k === key);
+  if (index !== -1) {
+    currentValues.value[index][1] = newValue;
+  }
 }
 
 /**
@@ -90,8 +137,8 @@ const handleSectionClick = (section: string) => {
 onMounted(async () => {
   try {
     const rawValue = await bridge.getConsulValues(props.consulClient);
-    initialParsedYaml.value = rawValue;
-    currentParsedYaml.value = rawValue;
+    initialParsedYaml.value = structuredClone(rawValue);
+    currentParsedYaml.value = structuredClone(rawValue);
     sections.value = Object.keys(rawValue);
     currentValues.value = flattenObject(rawValue);
   } catch(e) {
@@ -103,38 +150,48 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="absolute top-5 right-5 z-10 flex gap-3">
-    <v-rounded-button class="bg-teal-700  font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="handleFilter">
-      <co-filter />
-    </v-rounded-button>
-    <v-rounded-button class="bg-cyan-700  font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="() => {
-      changePage({
-        name: 'editor',
-        props: {
-          consulClient: props.consulClient,
-        },
-      })
-    }">
-      <fl-filled-arrow-swap />
-    </v-rounded-button>
-  </div>
-  <div v-if="showSections" class="absolute top-5 left-5 z-10 flex flex-wrap gap-3 text-white font-poppins w-3/4 overflow-hidden p-1">
-    <div v-for="value in sections" :key="value">
-      <v-button 
-        :class="filteredSection === value ? 'bg-amber-900 rounded-md' : 'bg-amber-700 rounded-md'"
-        :disabled="false"
-        @click="handleSectionClick(value)"
-      >{{ value }}</v-button>
+  <div class="sticky top-5 right-5 z-10 flex flex-row-reverse px-5">
+    <div class="flex gap-3">
+      <v-rounded-button class="bg-teal-700  font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="handleFilter">
+        <co-filter />
+      </v-rounded-button>
+      <v-rounded-button class="bg-cyan-700  font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="() => {
+        changePage({
+          name: 'editor',
+          props: {
+            consulClient: props.consulClient,
+          },
+        })
+      }">
+        <fl-filled-arrow-swap />
+      </v-rounded-button>
     </div>
+    <div v-if="showSections" class="absolute top-5 left-5 z-10 flex flex-wrap gap-3 text-white font-poppins w-3/4 overflow-hidden p-1">
+      <div v-for="value in sections" :key="value">
+        <v-button 
+          :class="filteredSection === value ? 'bg-amber-900 rounded-md' : 'bg-amber-700 rounded-md'"
+          :disabled="false"
+          @click="handleSectionClick(value)"
+        >{{ value }}</v-button>
+      </div>
+    </div>
+    <input
+      v-else
+      id="textFilter"
+      v-model="textFilter"
+      type="text"
+      placeholder="Type to filter keys..."
+      class="absolute top-5 left-1/2 -translate-x-1/2 z-10 p-2 rounded-md bg-neutral-700 text-white font-poppins w-1/4"
+    />
   </div>
-  <div>
-    <div v-for="[key, value] in currentValues" :key="key" class="flex flex-col m-5">
+  <div class="mt-10">
+    <div v-for="[key, value] in currentValues.sort().filter(([k, _]) => textFilter === '' ? true : k.toLowerCase().includes(textFilter.toLocaleLowerCase()))" :key="key" class="flex flex-col mx-5 my-1">
       <v-consul-entry :consul-key="key" :raw-value="value" @update:raw-value="(newValue) => {
-        toast.info(`Changed ${key} to ${newValue}`);
+        handleValueChange(key, newValue);
       }" />
     </div>
   </div>
-  <div class="absolute bottom-4 right-5 flex gap-3">
+  <div class="sticky bottom-5 flex flex-row-reverse px-5 w-full">
     <v-rounded-button class="bg-red-800 font-bold text-4xl w-15 h-15 text-center" :disabled="false" @click="handleDisconnect"><an-outlined-disconnect /></v-rounded-button>
   </div>
 </template>
